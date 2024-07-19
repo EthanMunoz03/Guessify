@@ -1,11 +1,61 @@
 <!DOCTYPE html>
 <html>
+
+<style>
+    
+    body {
+        font-family:Arial, Verdana, sans-serif;
+        background-color: rgb(31, 31, 31);
+        text-align: center;
+    }
+
+    h1 {
+        padding: 5px;
+        color:rgb(30, 200, 96);
+    }
+
+    h2 { color:white; }
+    
+    p { color: black; }
+
+    #instructions {
+        border: 2px solid black;
+        padding: 10px;
+        margin: 40px;
+        background-color: rgb(30, 200, 96);
+        color: black; 
+    }
+
+    .input_text {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 300px;
+        margin-bottom: 10px;
+    }
+
+    .submit_button {
+        background-color: rgb(30, 200, 96);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+</style>
+
 <head>
-    <link rel="stylesheet" href="./style.css" type="text/css">
+    <html lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css" type="text/css">
 </head>
+
 <body>
 
-    <h1> Guessify </h1>
+    <h1 class="header"> Guessify </h1>
 
     {% block content %}{% endblock %}
 </body>
