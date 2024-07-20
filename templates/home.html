@@ -8,19 +8,11 @@
 
 {% block content %}
 <body>
-    <h2> Try to guess the song based on 1 second! </h2> 
+    <h2> Try to guess the song in ONE second! </h2> 
     <p id="instructions"> Name title has to be exact. If guess is incorrect, you will recieve a little more time, with a maximum of 30 seconds.  </p>
     <p> <br> </p>
-    <p> <br> </p>
-    <p> <br> </p>
-    
-    <!-- play button should go here tbh -->
 
-    <div class="container">
-        <form action="/submit" method="POST">
-            <input type="text" id="guess" name="guess" class="input_text"><br>
-            <input type="submit" value="Submit" class="submit_button">
-        </form>
-    </div>
+    <p id="game_button"> <a href="/game">PLAY</a> </p>
+    
 </body>
 {% endblock content %}
