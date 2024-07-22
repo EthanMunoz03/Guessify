@@ -8,16 +8,51 @@
 
 {% block content %}
 <body>
-    <h2> Enter your guess below </h2> 
+
+    <table class="guesses-table">
+        <tbody>
+            {% for row in rows %}
+            <tr>
+            <td>{{ row }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p> <br> </p>
+    <!-- play button should go here tbh -->
     <p> <br> </p>
 
-    <!-- play button should go here tbh -->
-
+    <h3> Enter your guess below </h3> 
     <div class="container">
-        <form action="/submit" method="POST">
-            <input type="text" id="guess" name="guess" class="input_text">    
-            <input type="submit" value="Submit" class="submit_button">
+        <form id="updateForm">
+            <input type="text" id="guess" name="guess" class="input_text" required>    
+            <input type="submit" value="Check" class="submit_button">
         </form>
     </div>
+
+<script>
+    document.getElementById('updateForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    
+    fetch('/game', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+        var table = document.querySelector('.guesses-table tbody');
+        var rows = table.getElementsByTagName('tr');
+        rows[data.row_index].cells[0].innerText = data.new_value;
+        } else {
+        alert('Error updating row');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+    });
+</script>
+
 </body>
 {% endblock content %}

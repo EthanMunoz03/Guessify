@@ -9,39 +9,69 @@
   font-style: normal;
 }
 
-body {
+html, body {
     font-family: "Figtree";
-    background-color: rgb(18, 18, 18);
+    background-color: #121212;
     text-align: center;
-    margin: 0;
-}
-
-html { 
     margin: 0;
     padding: 0;
 }
 
+
 h1 {
-    color: rgb(30, 200, 96);
+    color: #1ec85f;
     font-weight: 700;
-    font-size: 40px;
+    font-size: 20px;
 }
 
 nav {
-    background-color: rgb(31, 31, 31);
-    padding: 1em;
+    background-color: #1f1f1f;
+    padding: 0.1em 1em;
     margin: 0;
+    top: 0;
 }
 
-h2 { color: white; }
+h2, h3 { color: white; }
 
 p { color: black; }
+
+a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+th, td {
+    border: 1px solid #121212;
+    text-align: center; 
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 10px;
+}
+
+td {
+    background-color: #1f1f1f;
+    color: #7d7d7d;
+    padding: 10px;
+}
+
+.guesses-table {
+    width: 50%;
+    margin: 1em auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 20px;
+}
 
 #instructions {
     border: 2px solid black;
     padding: 10px;
     margin: 40px;
-    background-color: rgb(30, 200, 96);
+    background-color: #1ec85f;
     color: black; 
 }
 
@@ -66,13 +96,15 @@ p { color: black; }
 }
 
 .submit_button {
-    background-color: rgb(30, 200, 96);
+    font-family: "Figtree";
+    background-color: #1ec85f;
     color: white;
-    padding: 10px 20px;
+    padding: 12px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: bold;
 }
 
 .content {
