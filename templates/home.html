@@ -9,10 +9,26 @@
 {% block content %}
 <body>
     <h2> Try to guess the song in ONE second! </h2> 
-    <p id="instructions"> Name title has to be exact. If guess is incorrect, you will recieve a little more time, with a maximum of 30 seconds.  </p>
-    <p> <br> </p>
+    
+    <!-- <h3> How-To: </h3> -->
+    <p id="instructions">
+        How To:
+        <br> <br>
+        You will be played a song for one second. You then have to type in
+        the name of the song you think it is. These songs will come from your
+        personal library so you should know them!
+        <br> <br>
+        The title of the song has to be exact. If your guess is incorrect,
+        you will recieve a little more time.
+        <br> <br>
+        You will get a maximum of 6 tries and a maximum of 30 seconds of the song.
+        <br> <br>
+        Once you login, you will be ready to play!
+    </p>
 
-    <p id="game_button"> <a href="/game">PLAY</a> </p>
+    <p id="play-button"> <a href="/game">PLAY</a> </p>
+
+    <p> <br> </p> <p> <br> </p>
     
 </body>
 {% endblock content %}

@@ -28,12 +28,14 @@ def home():
 # Game page
 @app.route("/game", methods=['GET', 'POST'])
 def game():
+    
     global rows, current_row_index
     if request.method == 'POST':
         new_value = request.form['guess']
 
         # add guess checking here
 
+        # if guess is incorrect, add it to the table
         if current_row_index < len(rows):
             rows[current_row_index] = new_value
             row_index = current_row_index

@@ -12,7 +12,9 @@
 <body>
     
     <nav>
+      <a class="navbar-links" href="{{ url_for('home') }}">Home</a>
       <h1 class="header"> Guessify </h1>
+      <a class="navbar-links" href="{{ url_for('game') }}">Play</a>
     </nav>
 
     {% block content %}{% endblock %}

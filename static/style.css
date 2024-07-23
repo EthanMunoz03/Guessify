@@ -29,11 +29,26 @@ nav {
     padding: 0.1em 1em;
     margin: 0;
     top: 0;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 h2, h3 { color: white; }
 
-p { color: black; }
+h3 {
+    font-size: 50px;
+    text-align: left;
+    margin-left: 1em;
+}
+
+p {
+    color: black;  
+    font-weight: 8px;
+    margin: 0;
+    padding: 0;
+}
 
 a {
     color: white;
@@ -50,40 +65,72 @@ th {
     background-color: #f2f2f2;
     font-weight: bold;
     font-size: 18px;
-    padding: 10px;
+    padding: 12px;
 }
 
 td {
     background-color: #1f1f1f;
     color: #7d7d7d;
     padding: 10px;
+    border-radius: 10px;
 }
 
 .guesses-table {
     width: 50%;
     margin: 1em auto;
     border-collapse: separate;
-    border-spacing: 0;
+    border-spacing: 5px;
     border-radius: 20px;
 }
 
 #instructions {
-    border: 2px solid black;
-    padding: 10px;
-    margin: 40px;
-    background-color: #1ec85f;
-    color: black; 
+    text-align: left;
+    border: 2px solid #1f1f1f;
+    padding: 20px;
+    margin: 60px;
+    background-color: #1f1f1f;
+    border-radius: 10px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
 }
 
-#game_button {
+#navbar-links {
     transition: transform 0.2s; 
     color: white;
     text-decoration: none;
     font-weight: bold;
+    font-size: 12px;
 }
 
-#game_button:hover {
+#navbar-links:hover { transform: scale(1.2); }
+
+#play-button {
+    transition: transform 0.2s; 
+    color: white;
+    text-decoration: none;
+    font-size:26px;
+    font-weight: bold;
+}
+
+#play-button:hover {
     transform: scale(1.4);
+    color: #1DB954;
+}
+
+.song-button {
+    background-color: #1DB954;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.song-button:hover {
+    background-color: #1ed760;
 }
 
 .input_text {
