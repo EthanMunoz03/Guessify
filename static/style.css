@@ -17,7 +17,6 @@ html, body {
     padding: 0;
 }
 
-
 h1 {
     color: #1ec85f;
     font-weight: 700;
@@ -122,20 +121,30 @@ td {
     color: #1DB954;
 }
 
+#spotify-player {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
 .song-button {
+    text-align: center;
     background-color: #1DB954;
+    font-size: 32px;
     color: white;
     border: none;
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    font-size: 16px;
     cursor: pointer;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
 }
 
-.song-button:hover {
-    background-color: #1ed760;
-}
+.song-button:hover, .submit-button:hover { background-color: #1ed760; }
+
+#song-button:focus { outline: none; }
 
 .input_text {
     padding: 10px;
@@ -146,7 +155,7 @@ td {
     margin-bottom: 10px;
 }
 
-.submit_button {
+.submit-button {
     font-family: "Figtree";
     background-color: #1ec85f;
     color: white;
