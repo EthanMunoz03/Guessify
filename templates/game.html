@@ -12,6 +12,15 @@
 {% block content %}
 <body>
 
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p> <b> Please connect to the Spotify Web SDK Player to play <b> </p>
+            <p> <br> <br> </p>
+            <img src="../imagesspotify_connect.png" alt="Spotify Connect">
+        </div>
+    </div>
+
     <!-- Table for Guesses -->
     <table class="guesses-table">
         <tbody>
@@ -35,39 +44,29 @@
         </form>
     </div>
 
-    <script>
-    document.getElementById('gameForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        var formData = new FormData(this);
-        
-        fetch('/update_table', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-            var table = document.querySelector('.guesses-table tbody');
-            var rows = table.getElementsByTagName('tr');
-            rows[data.row_index].cells[0].innerText = data.new_value;
-            var cell = rows[data.row_index].cells[0];
-            cell.innerText = data.new_value;
-            cell.style.backgroundColor = '#cf190c';
-            cell.style.fontWeight = 'bold';
-            cell.style.color = 'white';
-            } else {
-            alert('Error updating row');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
 
-    // Initialize Spotify Player
+    <script>
+
+        const modal = document.getElementById('myModal');
+        const span = document.getElementsByClassName('close')[0];
+
+        modal.style.display = 'block';
+        
+        let player;
+
+        const script = document.createElement("script");
+        script.src = "https://sdk.scdn.co/spotify-player.js";
+        script.async = true;
+
+        document.body.appendChild(script);
+
         window.onSpotifyWebPlaybackSDKReady = () => {
-            const token = "{{ session['token'] }}"; // Ensure this is correctly passed
-            const player = new Spotify.Player({
+
+            const token = "{{ session['token'] }}";
+            player = new window.Spotify.Player({
                 name: 'Web Playback SDK',
-                getOAuthToken: cb => { cb(token); }
+                getOAuthToken: cb => { cb(token); },
+                volume: 0.5
             });
 
             // Error handling
@@ -76,40 +75,101 @@
             player.addListener('account_error', ({ message }) => console.error(message));
             player.addListener('playback_error', ({ message }) => console.error(message));
 
-            // Playback status updates
+             // Playback status updates
             player.addListener('player_state_changed', state => {
                 console.log('Player state changed:', state);
                 const playPauseButton = document.getElementById('play-pause');
                 if (state.paused) {
-                    playPauseButton.innerHTML = '&#9658;'; // Play triangle symbol
+                    playPauseButton.innerHTML = '&#9658;';
                 } else {
-                    playPauseButton.innerHTML = '&#10074;&#10074;'; // Pause symbol
+                    playPauseButton.innerHTML = '&#10074;&#10074;';
                 }
             });
 
             // Ready
             player.addListener('ready', ({ device_id }) => {
                 console.log('Ready with Device ID:', device_id);
-
-                // Play a track
-                player.connect().then(success => {
-                    if (success) {
-                        console.log('The Web Playback SDK successfully connected to Spotify!');
-                    }
-                });
-
-                // Play or pause functionality
-                document.getElementById('play-pause').addEventListener('click', () => {
-                    player.getCurrentState().then(state => {
-                        if (state && !state.paused) {
-                            player.pause().catch(error => console.error(error));
-                        } else {
-                            player.resume().catch(error => console.error(error));
-                        }
-                    });
-                });
             });
-        };
+
+            // Not Ready
+            player.addListener('not_ready', ({ device_id }) => {
+                console.log('Device ID has gone offline', device_id);
+            });
+
+            // Connect
+            player.connect().then(success => {
+                if (success) {
+                    console.log('The Web Playback SDK successfully connected to Spotify!');
+
+                    // Play random song
+                    fetch('/random_song')
+                        .then(response => {
+                            console.log('Response received:', response);
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Random song data:', data);
+                            if (data.track_uri) {
+                                player.setVolume(0.5);
+                                console.log('Playing track:', data.track_uri);
+                                modal.style.display = 'none';
+                                player.play({
+                                    uris: [data.track_uri],
+                                }).catch(error => console.error('Error playing track:', error));
+                            } else {
+                                console.error('No track URI received.');
+                            }
+                        })
+                        .catch(error => console.error('Error fetching random song:', error));
+                } else {
+                    console.error('Error connecting to Spotify.');
+                }
+            }).catch(error => console.error('Error connecting to Spotify:', error));
+        }
+
+        // Play or Pause Functionality
+        document.getElementById('play-pause').addEventListener('click', () => {
+            console.log('Clicking on button');
+            if (!player) {
+                console.error('Player is not defined.');
+                return;
+            }
+            player.getCurrentState().then(state => {
+                if (state && !state.paused) {
+                    player.pause().catch(error => console.error('Error pausing track:', error));
+                } else {
+                    player.resume().catch(error => console.error('Error resuming track:', error));
+                }
+            }).catch(error => console.error('Error getting current state:', error));
+        });
+
+
+        // Update Table with Guesses
+        document.getElementById('gameForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+
+            fetch('/update_table', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var table = document.querySelector('.guesses-table tbody');
+                    var rows = table.getElementsByTagName('tr');
+                    rows[data.row_index].cells[0].innerText = data.new_value;
+                    var cell = rows[data.row_index].cells[0];
+                    cell.innerText = data.new_value;
+                    cell.style.backgroundColor = '#cf190c';
+                    cell.style.fontWeight = 'bold';
+                    cell.style.color = 'white';
+                } else {
+                    alert('Error updating row');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
     </script>
 
 </body>
