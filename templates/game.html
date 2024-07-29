@@ -98,12 +98,14 @@
 
             // Ready
             player.addListener('ready', ({ device_id }) => {
+                modal.style.display = 'none';
                 console.log('Ready with Device ID:', device_id);
                 device_ID = device_id;
             });
 
             // Not Ready
             player.addListener('not_ready', ({ device_id }) => {
+                modal.style.display = 'block';
                 console.log('Device ID has gone offline', device_id);
             });
 
@@ -111,30 +113,31 @@
             player.connect().then(success => {
                 if (success) {
                     console.log('The Web Playback SDK successfully connected to Spotify!');
-
-                    // Play random song
-                    fetch('/random_song')
-                        .then(response => {
-                            console.log('Response received:', response);
-                            return response.json();
-                        })
-                        .then(data => {
-                            modal.style.display = 'none';
-                            console.log('Random song data:', data);
-                            if (data.track_uri && data.track_title) {
-                                console.log('Playing track:', data.track_uri);
-                                trackTitle = data.track_title;
-                                track_uri = data.track_uri;
-                                console.log('Track Title:', trackTitle);
-                            } else {
-                                console.error('No track URI received.');
-                            }
-                        })
-                        .catch(error => console.error('Error fetching random song:', error));
+                    getRandomSong();
                 } else {
                     console.error('Error connecting to Spotify.');
                 }
             }).catch(error => console.error('Error connecting to Spotify:', error));
+        }
+
+        function getRandomSong() {
+            fetch('/random_song')
+                .then(response => {
+                    console.log('Response received:', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Random song data:', data);
+                    if (data.track_uri && data.track_title) {
+                        console.log('Playing track:', data.track_uri);
+                        trackTitle = data.track_title;
+                        track_uri = data.track_uri;
+                        console.log('Track Title:', trackTitle);
+                    } else {
+                        console.error('No track URI received.');
+                    }
+                })
+                .catch(error => console.error('Error fetching random song:', error));
         }
 
         // Plays Track for a Duration Based on the Number of Guesses
@@ -161,7 +164,7 @@
                                 console.log('Seeked to start of track.');
                             }).catch(error => console.error('Error seeking to start:', error));
                         }).catch(error => console.error('Error pausing track:', error));
-                    }, 1000);
+                    }, durations[currDurationIndex]);
                 } else {
                     console.error('Error starting playback:', data.error);
                 }
@@ -202,12 +205,14 @@
                     rows[data.row_index].cells[0].innerText = data.new_value;
                     var cell = rows[data.row_index].cells[0];
                     cell.innerText = data.new_value;
-                    if (trackTitle && data.new_value == trackTitle) {
+                    console.log('Track Title: ', trackTitle);
+                    console.log('Guess: ', data.new_value);
+                    console.log('Match: ', data.new_value === trackTitle);
+                    if (trackTitle && data.new_value === trackTitle) {
                         cell.style.backgroundColor = '#1DB954';
                     } else {
                         cell.style.backgroundColor = '#cf190c';
                     }
-                    cell.style.backgroundColor = '#cf190c';
                     cell.style.fontWeight = 'bold';
                     cell.style.color = 'white';
                     currDurationIndex = (currDurationIndex + 1) % durations.length;
