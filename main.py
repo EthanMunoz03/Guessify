@@ -114,8 +114,35 @@ def random_song():
     # Choose a Random Track
     track = random.choice(tracks)
     track_uri = track['track']['uri']
+    track_title = track['track']['name']
 
-    return jsonify({'track_uri': track_uri})
+    return jsonify({'track_uri': track_uri, 'track_title': track_title})
+
+# Play a New Song in Player
+@app.route('/play_track', methods=['POST'])
+def play_track():
+    token = session.get('token')
+    if not token:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    track_uri = request.json.get('track_uri')
+    device_id = request.json.get('device_id')
+    if not track_uri or not device_id:
+        return jsonify({'error': 'No track URI or device ID provided'}), 400
+
+    response = requests.put(
+        'https://api.spotify.com/v1/me/player/play',
+        headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
+        json={
+            'device_id': device_id,
+            'uris': [track_uri]
+        }
+    )
+
+    if response.status_code == 204:
+        return jsonify({'success': True}), 200
+    else:
+        return jsonify({'error': 'Failed to start playback'}), response.status_code
 
 # Updates Table with Guess
 @app.route('/update_table', methods=['POST'])

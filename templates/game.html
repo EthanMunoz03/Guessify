@@ -17,7 +17,7 @@
             <span class="close">&times;</span>
             <p> <b> Please connect to the Spotify Web SDK Player to play <b> </p>
             <p> <br> <br> </p>
-            <img src="../imagesspotify_connect.png" alt="Spotify Connect">
+            <!-- <img src="../imagesspotify_connect.png" alt="Spotify Connect"> -->
         </div>
     </div>
 
@@ -52,6 +52,11 @@
 
         modal.style.display = 'block';
         
+        const durations = [1000, 4000, 8000, 12000, 20000, 30000]; // Durations in milliseconds
+        let currDurationIndex = 0;
+        let device_ID;
+        let track_uri;
+        let trackTitle;
         let player;
 
         const script = document.createElement("script");
@@ -67,6 +72,11 @@
                 name: 'Web Playback SDK',
                 getOAuthToken: cb => { cb(token); },
                 volume: 0.5
+            });
+
+            // Set Name to Guessify
+            player.setName("Guessify").then(() => {
+                console.log('Player name updated!');
             });
 
             // Error handling
@@ -89,6 +99,7 @@
             // Ready
             player.addListener('ready', ({ device_id }) => {
                 console.log('Ready with Device ID:', device_id);
+                device_ID = device_id;
             });
 
             // Not Ready
@@ -108,14 +119,13 @@
                             return response.json();
                         })
                         .then(data => {
+                            modal.style.display = 'none';
                             console.log('Random song data:', data);
-                            if (data.track_uri) {
-                                player.setVolume(0.5);
+                            if (data.track_uri && data.track_title) {
                                 console.log('Playing track:', data.track_uri);
-                                modal.style.display = 'none';
-                                player.play({
-                                    uris: [data.track_uri],
-                                }).catch(error => console.error('Error playing track:', error));
+                                trackTitle = data.track_title;
+                                track_uri = data.track_uri;
+                                console.log('Track Title:', trackTitle);
                             } else {
                                 console.error('No track URI received.');
                             }
@@ -127,9 +137,40 @@
             }).catch(error => console.error('Error connecting to Spotify:', error));
         }
 
+        // Plays Track for a Duration Based on the Number of Guesses
+        function playTrack() {
+            fetch('/play_track', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    track_uri: track_uri,
+                    device_id: device_ID
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Playback started for track:', data.track_uri);
+                    player.setVolume(0.5);
+                    setTimeout(() => {
+                        player.togglePlay().then(() => {
+                            console.log('Paused after ' + (durations[currDurationIndex] / 1000) + ' seconds');
+                            player.seek(0).then(() => {
+                                console.log('Seeked to start of track.');
+                            }).catch(error => console.error('Error seeking to start:', error));
+                        }).catch(error => console.error('Error pausing track:', error));
+                    }, 1000);
+                } else {
+                    console.error('Error starting playback:', data.error);
+                }
+            })
+            .catch(error => console.error('Error starting playback:', error));
+        }
+
         // Play or Pause Functionality
         document.getElementById('play-pause').addEventListener('click', () => {
-            console.log('Clicking on button');
             if (!player) {
                 console.error('Player is not defined.');
                 return;
@@ -138,7 +179,7 @@
                 if (state && !state.paused) {
                     player.pause().catch(error => console.error('Error pausing track:', error));
                 } else {
-                    player.resume().catch(error => console.error('Error resuming track:', error));
+                    playTrack(); // Restart from beginning
                 }
             }).catch(error => console.error('Error getting current state:', error));
         });
@@ -161,9 +202,15 @@
                     rows[data.row_index].cells[0].innerText = data.new_value;
                     var cell = rows[data.row_index].cells[0];
                     cell.innerText = data.new_value;
+                    if (trackTitle && data.new_value == trackTitle) {
+                        cell.style.backgroundColor = '#1DB954';
+                    } else {
+                        cell.style.backgroundColor = '#cf190c';
+                    }
                     cell.style.backgroundColor = '#cf190c';
                     cell.style.fontWeight = 'bold';
                     cell.style.color = 'white';
+                    currDurationIndex = (currDurationIndex + 1) % durations.length;
                 } else {
                     alert('Error updating row');
                 }
