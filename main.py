@@ -20,7 +20,6 @@ SCOPE = 'streaming app-remote-control user-read-email user-read-playback-state u
 
 # Guesses-Table Variables
 rows = ["Guess 1", "Guess 2", "Guess 3", "Guess 4", "Guess 5", "Guess 6"]
-current_row_index = 0
 
 # Creates Access Token for Session
 @app.route('/callback')
@@ -115,8 +114,10 @@ def random_song():
     track = random.choice(tracks)
     track_uri = track['track']['uri']
     track_title = track['track']['name']
+    track_artist = ', '.join([artist['name'] for artist in track['track']['artists']])
+    track_image = track['track']['album']['images'][0]['url']
 
-    return jsonify({'track_uri': track_uri, 'track_title': track_title})
+    return jsonify({'track_uri': track_uri, 'track_title': track_title, 'track_artist': track_artist, 'track_image': track_image})
 
 # Play a New Song in Player
 @app.route('/play_track', methods=['POST'])
@@ -150,17 +151,14 @@ def update_table():
     global rows, current_row_index
     if request.method == 'POST':
         new_value = request.form['guess']
-
-        # add guess checking here
-
-        # If guess is incorrect, add it to the table
-        if current_row_index < len(rows):
-            rows[current_row_index] = new_value
-            row_index = current_row_index
-            current_row_index = (current_row_index + 1) % len(rows)
-            return jsonify(success=True, row_index=row_index, new_value=new_value)
-        return jsonify(success=False)
+        return jsonify(success=True, new_value=new_value)
     return render_template('game.html', rows=rows)
+
+# Reset the Row Index for New Game
+@app.route('/reset_game', methods=['POST'])
+def reset_game():
+    current_row_index = 0
+    return jsonify({'success': True})
 
 
 if __name__ == '__main__':

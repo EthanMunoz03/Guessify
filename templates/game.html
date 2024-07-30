@@ -12,9 +12,9 @@
 {% block content %}
 <body>
 
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
+    <div id="connectSpotify" class="popUp">
+        <div id="connectPopUp" class="popUp-content">
+            <span id="connectClose" class="close">&times;</span>
             <p> <b> Please connect to the Spotify Web SDK Player to play <b> </p>
             <p> <br> <br> </p>
             <!-- <img src="../imagesspotify_connect.png" alt="Spotify Connect"> -->
@@ -44,27 +44,61 @@
         </form>
     </div>
 
+    <!-- Correct Guess Pop Up -->
+    <div id="correctGuess" class="popUp">
+        <div id="correctPopUp" class="popUp-content">
+            <p> <br> </p>
+            <div> <span id="correctClose" class="close">&times;</span> </div>
+            <p id="successText"> You got it in 1 second! </p>
+            <div id="correctInfo"> 
+                <img id="songImage" src="" alt="Track Image">
+                <div id="songText">
+                    <p id="songTitle" class="songTitle">Song Title</p>
+                    <p id="songArtist" class="songArtist">Artist</p>
+                </div>
+            </div>
+            <p id="nextSong"> Next Song </p> <p> <br> </p>
+        </div>
+    </div>
+
+    <!-- <p id="nextSong"> <br> Next Song </p> -->
 
     <script>
-
-        const modal = document.getElementById('myModal');
-        const span = document.getElementsByClassName('close')[0];
-
-        modal.style.display = 'block';
         
-        const durations = [1000, 4000, 8000, 12000, 20000, 30000]; // Durations in milliseconds
-        let currDurationIndex = 0;
+        // Variables for Game
+        const durations = [1000, 4000, 8000, 12000, 20000, 30000];
+        const rows = ["Guess 1", "Guess 2", "Guess 3", "Guess 4", "Guess 5", "Guess 6"];
+        
+        let ready = false;
         let device_ID;
-        let track_uri;
-        let trackTitle;
         let player;
 
+        let currIndex = 0;
+        let currTrackURI;
+        let currTrackTitle;
+        let currTrackArtist;
+        let currTrackImage;
+
+        // Getting Spotify API
         const script = document.createElement("script");
         script.src = "https://sdk.scdn.co/spotify-player.js";
         script.async = true;
-
         document.body.appendChild(script);
 
+        // Pop Up to Connect Player on Spotify Device
+        const connectPopUp = document.getElementById('connectSpotify');
+        connectPopUp.style.display = 'block';
+        document.getElementById('connectClose').addEventListener('click', function() {
+            document.getElementById('connectSpotify').style.display = 'none';
+        });
+
+        // Correct Guess Pop Up
+        var matchPopUp = document.getElementById('correctGuess');
+        document.getElementById('correctClose').addEventListener('click', function() {
+            document.getElementById('correctGuess').style.display = 'none';
+        });
+
+        // Creating Spotify Player
         window.onSpotifyWebPlaybackSDKReady = () => {
 
             const token = "{{ session['token'] }}";
@@ -98,28 +132,30 @@
 
             // Ready
             player.addListener('ready', ({ device_id }) => {
-                modal.style.display = 'none';
                 console.log('Ready with Device ID:', device_id);
                 device_ID = device_id;
+                ready = true;
+                getRandomSong();
             });
 
             // Not Ready
             player.addListener('not_ready', ({ device_id }) => {
-                modal.style.display = 'block';
+                connectPopUp.style.display = 'block';
                 console.log('Device ID has gone offline', device_id);
+                ready = false;
             });
 
             // Connect
             player.connect().then(success => {
                 if (success) {
                     console.log('The Web Playback SDK successfully connected to Spotify!');
-                    getRandomSong();
                 } else {
                     console.error('Error connecting to Spotify.');
                 }
             }).catch(error => console.error('Error connecting to Spotify:', error));
         }
 
+        // Grabs Random Song from Random User Playlist
         function getRandomSong() {
             fetch('/random_song')
                 .then(response => {
@@ -128,11 +164,13 @@
                 })
                 .then(data => {
                     console.log('Random song data:', data);
-                    if (data.track_uri && data.track_title) {
+                    if (data.track_uri) {
                         console.log('Playing track:', data.track_uri);
-                        trackTitle = data.track_title;
-                        track_uri = data.track_uri;
-                        console.log('Track Title:', trackTitle);
+                        currTrackTitle = data.track_title;
+                        currTrackURI = data.track_uri;
+                        currTrackArtist = data.track_artist;
+                        currTrackImage = data.track_image;
+                        console.log('Track Title:', currTrackTitle);
                     } else {
                         console.error('No track URI received.');
                     }
@@ -148,7 +186,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    track_uri: track_uri,
+                    track_uri: currTrackURI,
                     device_id: device_ID
                 })
             })
@@ -159,12 +197,12 @@
                     player.setVolume(0.5);
                     setTimeout(() => {
                         player.togglePlay().then(() => {
-                            console.log('Paused after ' + (durations[currDurationIndex] / 1000) + ' seconds');
+                            console.log('Paused after ' + (durations[currIndex] / 1000) + ' seconds');
                             player.seek(0).then(() => {
                                 console.log('Seeked to start of track.');
                             }).catch(error => console.error('Error seeking to start:', error));
                         }).catch(error => console.error('Error pausing track:', error));
-                    }, durations[currDurationIndex]);
+                    }, durations[currIndex]);
                 } else {
                     console.error('Error starting playback:', data.error);
                 }
@@ -172,7 +210,7 @@
             .catch(error => console.error('Error starting playback:', error));
         }
 
-        // Play or Pause Functionality
+        // Play and Pause Functionality
         document.getElementById('play-pause').addEventListener('click', () => {
             if (!player) {
                 console.error('Player is not defined.');
@@ -182,13 +220,13 @@
                 if (state && !state.paused) {
                     player.pause().catch(error => console.error('Error pausing track:', error));
                 } else {
-                    playTrack(); // Restart from beginning
+                    playTrack();
                 }
             }).catch(error => console.error('Error getting current state:', error));
         });
 
 
-        // Update Table with Guesses
+        // Update Table with Guess
         document.getElementById('gameForm').addEventListener('submit', function(event) {
             event.preventDefault();
             var formData = new FormData(this);
@@ -202,26 +240,76 @@
                 if (data.success) {
                     var table = document.querySelector('.guesses-table tbody');
                     var rows = table.getElementsByTagName('tr');
-                    rows[data.row_index].cells[0].innerText = data.new_value;
-                    var cell = rows[data.row_index].cells[0];
-                    cell.innerText = data.new_value;
-                    console.log('Track Title: ', trackTitle);
-                    console.log('Guess: ', data.new_value);
-                    console.log('Match: ', data.new_value === trackTitle);
-                    if (trackTitle && data.new_value === trackTitle) {
+                    rows[currIndex].cells[0].innerText = data.new_value;
+                    var cell = rows[currIndex].cells[0];
+                    console.log('Track Title: ', currTrackTitle); // DEBUG
+                    console.log('Guess: ', data.new_value); // DEBUG
+                    
+                    // Correct Guess
+                    if (currTrackTitle && data.new_value.toLowerCase() === currTrackTitle.toLowerCase()) {
+                        cell.innerText = currTrackTitle;
+                        if (currIndex != 0) {
+                            const successText = document.getElementById('successText');
+                            successText.textContent = `You got it in ${durations[currIndex] / 1000} seconds!`;
+                        }
                         cell.style.backgroundColor = '#1DB954';
-                    } else {
+                        document.getElementById('songTitle').innerText = currTrackTitle;
+                        document.getElementById('songArtist').innerText = currTrackArtist;
+                        document.getElementById('songImage').src = currTrackImage;
+
+                        var matchPopUp = document.getElementById('correctGuess');
+                        matchPopUp.style.display = 'block';
+
+                    } else { // Incorrect Guess
+                        cell.innerText = data.new_value;
                         cell.style.backgroundColor = '#cf190c';
                     }
                     cell.style.fontWeight = 'bold';
                     cell.style.color = 'white';
-                    currDurationIndex = (currDurationIndex + 1) % durations.length;
+                    currIndex = (currIndex + 1) % durations.length;
                 } else {
                     alert('Error updating row');
                 }
             })
             .catch(error => console.error('Error:', error));
         });
+
+        // Reset Game when Next Song is Clicked
+        document.getElementById('nextSong').addEventListener('click', () => {
+            document.getElementById('correctGuess').style.display = 'none';
+            resetGame();
+        });
+
+        // Reset Game for Another
+        function resetGame() {
+            // Reset the Table
+            const table = document.querySelector('.guesses-table tbody');
+            const rows = table.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].cells[0].innerText = `Guess ${i + 1}`;
+                rows[i].cells[0].style.backgroundColor = '';
+                rows[i].cells[0].style.fontWeight = '';
+                rows[i].cells[0].style.color = '';
+            }
+            fetch('/reset_game', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) { console.log('Game reset successfully.'); }
+                else { console.error('Error resetting the game.'); }
+            })
+            .catch(error => console.error('Error:', error));
+
+            currIndex = 0;
+
+            document.getElementById('guess').value = '';
+
+            // Fetch and Play a New Random Song
+            getRandomSong();
+            playTrack();
+        }
+
     </script>
 
 </body>
