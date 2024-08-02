@@ -57,11 +57,16 @@
                     <p id="songArtist" class="songArtist">Artist</p>
                 </div>
             </div>
-            <p id="nextSong"> Next Song </p> <p> <br> </p>
+            <p id="nextSongPopup"> Next Song </p>
+            <p> <br> </p>
         </div>
     </div>
 
-    <!-- <p id="nextSong"> <br> Next Song </p> -->
+    <!-- Song Info and Next Song Buttons -->
+    <div id="infoAndNext" class="buttons">
+        <button id="showSong"> Show Song </button>
+        <button id="nextSong"> Next Song </button>
+    </div>
 
     <script>
         
@@ -92,10 +97,24 @@
             document.getElementById('connectSpotify').style.display = 'none';
         });
 
-        // Correct Guess Pop Up
-        var matchPopUp = document.getElementById('correctGuess');
+        // Correct Guess Popup
         document.getElementById('correctClose').addEventListener('click', function() {
             document.getElementById('correctGuess').style.display = 'none';
+        });
+        
+        // Next Song Button
+        document.getElementById('nextSong').style.display = 'none';
+        document.getElementById('nextSong').addEventListener('click', function() {
+            player.pause();
+            document.getElementById('showSong').style.display = 'none';
+            document.getElementById('nextSong').style.display = 'none';
+            resetGame();
+        });
+
+        // Show Song Info Button
+        document.getElementById('showSong').style.display = 'none';
+        document.getElementById('showSong').addEventListener('click', function() {
+            document.getElementById('correctGuess').style.display = 'block';
         });
 
         // Creating Spotify Player
@@ -210,6 +229,13 @@
             .catch(error => console.error('Error starting playback:', error));
         }
 
+        // Play the Full Track Once Game is Over (Win or Lose)
+        function playFullTrack() {
+            player.resume().then(() => {
+                console.log('Resumed!');
+            });
+        }
+
         // Play and Pause Functionality
         document.getElementById('play-pause').addEventListener('click', () => {
             if (!player) {
@@ -225,7 +251,6 @@
             }).catch(error => console.error('Error getting current state:', error));
         });
 
-
         // Update Table with Guess
         document.getElementById('gameForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -237,11 +262,13 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.success && currIndex < 6) {
                     var table = document.querySelector('.guesses-table tbody');
                     var rows = table.getElementsByTagName('tr');
                     rows[currIndex].cells[0].innerText = data.new_value;
                     var cell = rows[currIndex].cells[0];
+                    document.getElementById('guess').value = '';
+
                     console.log('Track Title: ', currTrackTitle); // DEBUG
                     console.log('Guess: ', data.new_value); // DEBUG
                     
@@ -250,15 +277,15 @@
                         cell.innerText = currTrackTitle;
                         if (currIndex != 0) {
                             const successText = document.getElementById('successText');
-                            successText.textContent = `You got it in ${durations[currIndex] / 1000} seconds!`;
+                            successText.textContent = 'You got it in ${durations[currIndex] / 1000} seconds!';
+                        } else {
+                            const successText = document.getElementById('successText');
+                            successText.textContent = 'You got it in 1 second!';
                         }
                         cell.style.backgroundColor = '#1DB954';
-                        document.getElementById('songTitle').innerText = currTrackTitle;
-                        document.getElementById('songArtist').innerText = currTrackArtist;
-                        document.getElementById('songImage').src = currTrackImage;
 
-                        var matchPopUp = document.getElementById('correctGuess');
-                        matchPopUp.style.display = 'block';
+                        setSongInfo();
+                        playFullTrack();
 
                     } else { // Incorrect Guess
                         cell.innerText = data.new_value;
@@ -266,27 +293,49 @@
                     }
                     cell.style.fontWeight = 'bold';
                     cell.style.color = 'white';
-                    currIndex = (currIndex + 1) % durations.length;
-                } else {
+                    currIndex = (currIndex + 1);
+
+                    // Game Over
+                    if (currIndex == 6) {
+                        const successText = document.getElementById('successText');
+                        successText.textContent = 'You Lost!';
+
+                        setSongInfo();
+                        playFullTrack();
+                    }
+                } else if (currIndex != 6) {
                     alert('Error updating row');
                 }
             })
             .catch(error => console.error('Error:', error));
         });
 
-        // Reset Game when Next Song is Clicked
-        document.getElementById('nextSong').addEventListener('click', () => {
+        // Set Ending Song Info
+        function setSongInfo() {
+            document.getElementById('songTitle').innerText = currTrackTitle;
+            document.getElementById('songArtist').innerText = currTrackArtist;
+            document.getElementById('songImage').src = currTrackImage;
+
+            document.getElementById('correctGuess').style.display = 'block';
+            document.getElementById('nextSong').style.display = 'block';
+            document.getElementById('showSong').style.display = 'block';
+        }
+
+        // Next Song Button on Popup
+        document.getElementById('nextSongPopup').addEventListener('click', () => {
+            player.pause();
             document.getElementById('correctGuess').style.display = 'none';
+            document.getElementById('nextSong').style.display = 'none';
+            document.getElementById('showSong').style.display = 'none';
             resetGame();
         });
 
         // Reset Game for Another
         function resetGame() {
-            // Reset the Table
             const table = document.querySelector('.guesses-table tbody');
             const rows = table.getElementsByTagName('tr');
             for (let i = 0; i < rows.length; i++) {
-                rows[i].cells[0].innerText = `Guess ${i + 1}`;
+                rows[i].cells[0].innerText = 'Guess ${i + 1}';
                 rows[i].cells[0].style.backgroundColor = '';
                 rows[i].cells[0].style.fontWeight = '';
                 rows[i].cells[0].style.color = '';
@@ -302,12 +351,9 @@
             .catch(error => console.error('Error:', error));
 
             currIndex = 0;
-
             document.getElementById('guess').value = '';
 
-            // Fetch and Play a New Random Song
             getRandomSong();
-            playTrack();
         }
 
     </script>

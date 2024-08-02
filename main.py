@@ -66,6 +66,12 @@ def refresh_token():
     if 'refresh_token' in token_info:
         session['refresh_token'] = token_info['refresh_token']
 
+# Logout Route
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
+
 # Homepage
 @app.route("/")
 def home():

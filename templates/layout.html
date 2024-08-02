@@ -14,7 +14,11 @@
     <nav>
       <a class="navbar-links" href="{{ url_for('home') }}">Home</a>
       <h1 class="header"> Guessify </h1>
-      <a class="navbar-links" href="{{ url_for('game') }}">Login</a>
+      {% if session.get('token') %}
+        <a class="navbar-links" href="/logout">Logout</a>
+      {% else %}
+        <a class="navbar-links" href="/login">Login</a>
+      {% endif %}
     </nav>
 
     {% block content %}{% endblock %}
