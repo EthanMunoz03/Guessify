@@ -15,9 +15,9 @@
     <div id="connectSpotify" class="popUp">
         <div id="connectPopUp" class="popUp-content">
             <span id="connectClose" class="close">&times;</span>
-            <p> <b> Please connect to the Spotify Web SDK Player to play <b> </p>
-            <p> <br> <br> </p>
-            <!-- <img src="../imagesspotify_connect.png" alt="Spotify Connect"> -->
+            <!-- <p> <br> <br> </p> -->
+            <p> <b> Please connect to Guessify on Spotify to play <b> </p>
+            <img src="{{ url_for('static', filename='images/Spotify_Connect.png') }}" alt="Spotify Connect" id="connectImage">
         </div>
     </div>
 
@@ -78,6 +78,8 @@
         let device_ID;
         let player;
 
+        let highScore = 0;
+        let currScore = 0;
         let currIndex = 0;
         let currTrackURI;
         let currTrackTitle;
@@ -277,7 +279,7 @@
                         cell.innerText = currTrackTitle;
                         if (currIndex != 0) {
                             const successText = document.getElementById('successText');
-                            successText.textContent = 'You got it in ${durations[currIndex] / 1000} seconds!';
+                            successText.textContent = `You got it in ${durations[currIndex] / 1000} seconds!`;
                         } else {
                             const successText = document.getElementById('successText');
                             successText.textContent = 'You got it in 1 second!';
@@ -332,10 +334,12 @@
 
         // Reset Game for Another
         function resetGame() {
+            getRandomSong();
+
             const table = document.querySelector('.guesses-table tbody');
             const rows = table.getElementsByTagName('tr');
             for (let i = 0; i < rows.length; i++) {
-                rows[i].cells[0].innerText = 'Guess ${i + 1}';
+                rows[i].cells[0].innerText = `Guess ${i + 1}`;
                 rows[i].cells[0].style.backgroundColor = '';
                 rows[i].cells[0].style.fontWeight = '';
                 rows[i].cells[0].style.color = '';
@@ -352,8 +356,6 @@
 
             currIndex = 0;
             document.getElementById('guess').value = '';
-
-            getRandomSong();
         }
 
     </script>

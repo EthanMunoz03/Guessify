@@ -43,8 +43,6 @@ nav {
     font-size: 12px;
 }
 
-#navbar-links:hover { transform: scale(1.2); }
-
 .header {
     position: absolute;
     left: 50%;
@@ -146,8 +144,8 @@ td {
     border-radius: 6px;
     display: flex;
     flex-direction: row;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 #songText {
@@ -188,6 +186,12 @@ td {
     color: #1ed760;
     text-decoration: none;
     cursor: pointer;
+}
+
+#connectImage {
+    width: 700px;
+    height: auto;
+    margin: 10px;
 }
 
 .buttons {

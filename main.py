@@ -17,6 +17,7 @@ REDIRECT_URI = 'https://rubysong-idiomscroll-5000.codio.io/callback'
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 SCOPE = 'streaming app-remote-control user-read-email user-read-playback-state user-modify-playback-state user-read-private user-library-read'
+# playlist-read-private
 
 # Guesses-Table Variables
 rows = ["Guess 1", "Guess 2", "Guess 3", "Guess 4", "Guess 5", "Guess 6"]
