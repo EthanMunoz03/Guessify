@@ -74,7 +74,6 @@
         const durations = [1000, 4000, 8000, 12000, 20000, 30000];
         const rows = ["Guess 1", "Guess 2", "Guess 3", "Guess 4", "Guess 5", "Guess 6"];
         
-        let ready = false;
         let device_ID;
         let player;
 
@@ -155,7 +154,6 @@
             player.addListener('ready', ({ device_id }) => {
                 console.log('Ready with Device ID:', device_id);
                 device_ID = device_id;
-                ready = true;
                 getRandomSong();
             });
 
@@ -163,7 +161,6 @@
             player.addListener('not_ready', ({ device_id }) => {
                 connectPopUp.style.display = 'block';
                 console.log('Device ID has gone offline', device_id);
-                ready = false;
             });
 
             // Connect
@@ -174,6 +171,8 @@
                     console.error('Error connecting to Spotify.');
                 }
             }).catch(error => console.error('Error connecting to Spotify:', error));
+
+            player.pause();
         }
 
         // Grabs Random Song from Random User Playlist
@@ -270,6 +269,8 @@
                     rows[currIndex].cells[0].innerText = data.new_value;
                     var cell = rows[currIndex].cells[0];
                     document.getElementById('guess').value = '';
+                    
+                    var incorrect = false;
 
                     console.log('Track Title: ', currTrackTitle); // DEBUG
                     console.log('Guess: ', data.new_value); // DEBUG
@@ -277,6 +278,7 @@
                     // Correct Guess
                     if (currTrackTitle && data.new_value.toLowerCase() === currTrackTitle.toLowerCase()) {
                         cell.innerText = currTrackTitle;
+
                         if (currIndex != 0) {
                             const successText = document.getElementById('successText');
                             successText.textContent = `You got it in ${durations[currIndex] / 1000} seconds!`;
@@ -290,6 +292,7 @@
                         playFullTrack();
 
                     } else { // Incorrect Guess
+                        incorrect = true
                         cell.innerText = data.new_value;
                         cell.style.backgroundColor = '#cf190c';
                     }
@@ -298,14 +301,14 @@
                     currIndex = (currIndex + 1);
 
                     // Game Over
-                    if (currIndex == 6) {
+                    if (incorrect && currIndex == 6) {
                         const successText = document.getElementById('successText');
                         successText.textContent = 'You Lost!';
 
                         setSongInfo();
                         playFullTrack();
                     }
-                } else if (currIndex != 6) {
+                } else if (currIndex != 7) {
                     alert('Error updating row');
                 }
             })
