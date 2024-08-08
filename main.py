@@ -161,12 +161,6 @@ def update_table():
         return jsonify(success=True, new_value=new_value)
     return render_template('game.html', rows=rows)
 
-# Reset the Row Index for New Game
-@app.route('/reset_game', methods=['POST'])
-def reset_game():
-    current_row_index = 0
-    return jsonify({'success': True})
-
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")

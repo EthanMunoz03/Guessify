@@ -64,6 +64,7 @@ p {
     font-weight: 8px;
     margin: 0;
     padding: 0;
+    color: white;
 }
 
 a {
@@ -176,16 +177,24 @@ td {
     margin: 0;
     background-color: #121212;
     border: none;
+    visibility: hidden;
 }
 
-#nextSong { margin-left: 10px; }
+#nextSong { margin-left: 75px; }
 
-#showSong { margin-right: 10px; }
+#showSong { margin-right: 75px; }
 
 #nextSongPopup:hover, #nextSongPopup:focus, #nextSong:hover, #nextSong:focus, #showSong:hover, #showSong:focus {
     color: #1ed760;
     text-decoration: none;
     cursor: pointer;
+}
+
+#infoAndNext {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 #connectImage {
@@ -194,11 +203,20 @@ td {
     margin: 10px;
 }
 
+#score {
+    text-align: center;
+    font-size: 20px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    min-width: 250px;
+}
+
 .buttons {
     display: flex;
     flex-direction: row;
     justify-content: center;
     margin-top: 7px;
+    align-items: center;
 }
 
 .popUp img {
