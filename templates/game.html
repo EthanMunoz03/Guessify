@@ -15,7 +15,6 @@
     <div id="connectSpotify" class="popUp">
         <div id="connectPopUp" class="popUp-content">
             <span id="connectClose" class="close">&times;</span>
-            <!-- <p> <br> <br> </p> -->
             <p> <b> Please connect to Guessify on Spotify to play <b> </p>
             <img src="{{ url_for('static', filename='images/Spotify_Connect.png') }}" alt="Spotify Connect" id="connectImage">
         </div>
@@ -25,7 +24,7 @@
     <table class="guesses-table">
         <tbody>
             {% for row in rows %}
-            <tr> <td>{{ row }}</td> </tr>
+            <tr> <td class="guessesRows">{{ row }}</td> </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -44,7 +43,7 @@
         </form>
     </div>
 
-    <!-- Correct Guess Pop Up -->
+    <!-- Correct Guess or Out of Guesses Pop Up -->
     <div id="correctGuess" class="popUp">
         <div id="correctPopUp" class="popUp-content">
             <p> <br> </p>
@@ -62,11 +61,99 @@
         </div>
     </div>
 
-    <!-- Song Info and Next Song Buttons -->
+    <!-- Song Info, Next Song, and Current Score -->
     <div id="infoAndNext" class="buttons">
         <button id="showSong"> Show Song </button>
         <div id="score"> <p> Current Score: 0 </p> </div>
         <button id="nextSong"> Next Song </button>
+    </div>
+
+    <!-- Game Over Pop Up -->
+    <div id="endingPopUp" class="popUp">
+        <div class="popUp-content">
+            <div>
+                <p> <br> </p>
+                <p> Game Over </p>
+                <p id="finalScore"> Final Score: 0 </p>
+            </div>
+            <div id="previousGames">
+                <div class="endingInfo">
+                    <table id="game1" class="endingTables">
+                        <tbody>
+                            <th> Game 1 </th>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                        </tbody>
+                    </table>
+                    <p id="points1" class="points"> +0 points </p>
+                </div>
+                <div class="endingInfo">
+                    <table id="game2" class="endingTables">
+                        <tbody>
+                            <th> Game 2 </th>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                        </tbody>
+                    </table>
+                    <p id="points2" class="points"> +0 points </p>
+                </div>
+                <div class="endingInfo">
+                    <table id="game3" class="endingTables">
+                        <tbody>
+                            <th> Game 3 </th>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                        </tbody>
+                    </table>
+                    <p id="points3" class="points"> +0 points </p>
+                </div>
+                <div class="endingInfo">
+                    <table id="game4" class="endingTables">
+                        <tbody>
+                            <th> Game 4 </th>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                        </tbody>
+                    </table>
+                    <p id="points4" class="points"> +0 points </p>
+                </div>
+                <div class="endingInfo">
+                    <table id="game5" class="endingTables">
+                        <tbody>
+                            <th> Game 5 </th>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                            <tr> <td class="endingRows"> . </td> </tr>
+                        </tbody>
+                    </table>
+                    <p id="points5" class="points"> +0 points </p>
+                </div>
+            </div>
+            <div>
+                <p> <br> </p>
+                <button id="playAgain"> Play Again </button>
+                <p> <br> </p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -74,15 +161,17 @@
         // Variables for Game
         const durations = [1000, 4000, 8000, 12000, 20000, 30000];
         const rows = ["Guess 1", "Guess 2", "Guess 3", "Guess 4", "Guess 5", "Guess 6"];
-        const points = [1000, 850, 600, 400, 200, 100]
+        const points = [1000, 850, 600, 450, 200, 100]
         
+        let games = [-1, -1, -1, -1, -1];
         let device_ID;
         let player;
 
+        let won = false;
+        let numGames = 0;
         let highScore = 0;
         let currScore = 0;
         let currIndex = 0;
-        let currTries = 0;
         let currTrackURI;
         let currTrackTitle;
         let currTrackArtist;
@@ -107,7 +196,6 @@
         });
         
         // Next Song Button
-        // document.getElementById('nextSong').style.display = 'none';
         document.getElementById('nextSong').addEventListener('click', function() {
             player.pause();
             document.getElementById('showSong').style.visibility = 'hidden';
@@ -116,7 +204,6 @@
         });
 
         // Show Song Info Button
-        // document.getElementById('showSong').style.display = 'none';
         document.getElementById('showSong').addEventListener('click', function() {
             document.getElementById('correctGuess').style.display = 'block';
         });
@@ -266,7 +353,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success && currIndex < 6) {
+                if (data.success && currIndex < 6 && !won) {
                     var table = document.querySelector('.guesses-table tbody');
                     var rows = table.getElementsByTagName('tr');
                     rows[currIndex].cells[0].innerText = data.new_value;
@@ -280,8 +367,11 @@
                     
                     // Correct Guess
                     if (currTrackTitle && data.new_value.toLowerCase() === currTrackTitle.toLowerCase()) {
+                        won = true;
                         cell.innerText = currTrackTitle;
                         currScore = currScore + points[currIndex];
+                        games[numGames] = currIndex;
+                        numGames = numGames + 1;
                         document.getElementById('score').querySelector('p').innerText = `Current Score: ${currScore}`;
                         if (currIndex != 0) {
                             const successText = document.getElementById('successText');
@@ -303,31 +393,108 @@
                     cell.style.fontWeight = 'bold';
                     cell.style.color = 'white';
                     currIndex = currIndex + 1;
-                    currTries = currTries + 1;
-                    // Game Over
+                    // Ran out of Guesses
                     if (incorrect && currIndex == 6) {
+                        numGames = numGames + 1;
                         const successText = document.getElementById('successText');
-                        successText.textContent = 'You Lost!';
+                        successText.textContent = 'You Lost! The Song was...';
 
                         setSongInfo();
                         playFullTrack();
                     }
-                } else if (currIndex != 6) {
+                    // Game Over
+                    if (numGames == 5) {
+                        console.log(numGames)
+                        displayEnding();
+                    }
+                } else if (won || currIndex == 6) {
+                    console.log('nu uh'); // DEBUG
+                } else {
                     alert('Error updating row');
                 }
             })
             .catch(error => console.error('Error:', error));
         });
 
-        // Set Ending Song Info
+        function displayEnding() {
+
+            //if (currScore > highScore) {
+            //    highScore = currScore;
+            //}
+
+            if (currScore == 5000) {
+                document.getElementById('finalScore').innerText = 'Perfect Score! 5000 points';
+            } else {
+                document.getElementById('finalScore').innerText = 'Final Score: ' + currScore;
+            }
+
+            if (games[0] != -1) {
+                document.getElementById('points1').innerText = '+' + points[games[0]] + ' points';
+            }
+            if (games[1] != -1) {
+                document.getElementById('points2').innerText = '+' + points[games[1]] + ' points';
+            }
+            if (games[2] != -1) {
+                document.getElementById('points3').innerText ='+' + points[games[2]] + ' points';
+            }
+            if (games[3] != -1) {
+                document.getElementById('points4').innerText = '+' + points[games[3]] + ' points';
+            }
+            if (games[4] != -1) {
+                document.getElementById('points5').innerText = '+' + points[games[4]] + ' points';
+            }
+            
+            setBackground('#game1 tbody', 0, '#cf190c');
+            setBackground('#game2 tbody', 1, '#cf190c');
+            setBackground('#game3 tbody', 2, '#cf190c');
+            setBackground('#game4 tbody', 3, '#cf190c');
+            setBackground('#game5 tbody', 4, '#cf190c');
+
+            document.getElementById('endingPopUp').style.display = 'block';
+        }
+
+        // Set the Backgrounds of the Ending Tables
+        function setBackground(str, num, color) {
+            var table = document.querySelector(str);
+            var rows = table.getElementsByTagName('tr');
+            if (games[num] != -1) {
+                if (games[num] != 0) {
+                    for (let i = 1; i < games[num] + 1; i++) {
+                        var cell = rows[i].cells[0];
+                        cell.style.backgroundColor = '#cf190c';
+                        cell.style.color = '#cf190c';
+                    }
+                }
+                var cell = rows[games[num] + 1].cells[0];
+                cell.style.backgroundColor = '#1DB954';
+                cell.style.color = '#1DB954';
+                cell.style.fontWeight = 'bold';
+            } else {
+                for (let i = 1; i < points.length + 1; i++) {
+                    var cell = rows[i].cells[0];
+                    cell.style.backgroundColor = color;
+                    cell.style.color = color;
+                }
+            }
+        }
+
+        // Play Again
+        document.getElementById('playAgain').addEventListener('click', function() {
+            player.pause();
+            document.getElementById('endingPopUp').style.display = 'none';
+            document.getElementById('correctGuess').style.display = 'none';
+            document.getElementById('showSong').style.visibility = 'hidden';
+            document.getElementById('nextSong').style.visibility = 'hidden';
+            resetGame();
+        });
+
+        // Set Song Info
         function setSongInfo() {
             document.getElementById('songTitle').innerText = currTrackTitle;
             document.getElementById('songArtist').innerText = currTrackArtist;
             document.getElementById('songImage').src = currTrackImage;
 
             document.getElementById('correctGuess').style.display = 'block';
-            //document.getElementById('nextSong').style.display = 'block';
-            //document.getElementById('showSong').style.display = 'block';
             document.getElementById('showSong').style.visibility = 'visible';
             document.getElementById('nextSong').style.visibility = 'visible';
         }
@@ -336,8 +503,6 @@
         document.getElementById('nextSongPopup').addEventListener('click', () => {
             player.pause();
             document.getElementById('correctGuess').style.display = 'none';
-            //document.getElementById('nextSong').style.display = 'none';
-            //document.getElementById('showSong').style.display = 'none';
             document.getElementById('showSong').style.visibility = 'hidden';
             document.getElementById('nextSong').style.visibility = 'hidden';
             resetSong();
@@ -356,12 +521,25 @@
                 rows[i].cells[0].style.color = '';
             }
 
+            won = false;
             currIndex = 0;
             document.getElementById('guess').value = '';
         }
 
+        // Reset Game after 5 Songs
         function resetGame() {
+            resetSong();
+            numGames = 0;
             currScore = 0;
+            games = [-1, -1, -1, -1, -1];
+            
+            setBackground('#game1 tbody', 0, '#525252');
+            setBackground('#game2 tbody', 1, '#525252');
+            setBackground('#game3 tbody', 2, '#525252');
+            setBackground('#game4 tbody', 3, '#525252');
+            setBackground('#game5 tbody', 4, '#525252');
+
+            document.getElementById('score').querySelector('p').innerText = 'Current Score: 0';
         }
 
     </script>
